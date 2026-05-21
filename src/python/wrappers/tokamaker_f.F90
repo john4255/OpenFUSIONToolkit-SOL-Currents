@@ -422,6 +422,7 @@ CHARACTER(KIND=c_char), INTENT(in) :: p_file(OFT_PATH_SLEN) !< P' prof.in file
 REAL(c_double), VALUE, INTENT(in) :: f_offset !< Vacuum F_0 value (must be > -1E98 to update)
 CHARACTER(KIND=c_char), INTENT(in) :: eta_file(OFT_PATH_SLEN) !< Resistivity (eta) profile specification file
 CHARACTER(KIND=c_char), INTENT(in) :: f_NI_file(OFT_PATH_SLEN) !< Non-inductive F*F' profile specification file
+LOGICAL(c_bool), VALUE, INTENT(in) :: f_sol !< Include F*F' source in SOL?
 CHARACTER(KIND=c_char), INTENT(out) :: error_str(OFT_ERROR_SLEN) !< Error string (empty if no error)
 CHARACTER(LEN=OFT_PATH_SLEN) :: tmp_str
 CLASS(flux_func), POINTER :: prof_tmp

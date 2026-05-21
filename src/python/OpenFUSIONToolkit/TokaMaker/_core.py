@@ -16,8 +16,38 @@ from warnings import warn
 import numpy
 from ._interface import *
 
+import matplotlib
+from matplotlib.patches import Polygon
+from matplotlib.colors import ListedColormap
 
+<<<<<<< HEAD
 def create_prof_file(self, filename, profile_dict, name):
+=======
+def tokamaker_default_settings(oft_env):
+    '''! Initialize settings object with default values
+
+    @param oft_env Current runtime environment
+    @result tokamaker_settings_struct object
+    '''
+    settings = tokamaker_settings_struct()
+    settings.pm = True
+    settings.free_boundary = True
+    settings.has_plasma = True
+    settings.limited_only = False
+    settings.dipole_mode = False
+    settings.mirror_mode = False
+    settings.maxits = 40
+    settings.mode = 1
+    settings.urf = 0.2
+    settings.nl_tol = 1.E-6
+    settings.rmin = 0.0
+    settings.lim_zmax = 1.E99
+    settings.limiter_file = oft_env.path2c('none')
+    return settings
+
+
+def create_prof_file(self, filename, profile_dict, name, include_sol=False):
+>>>>>>> Add-SOL
     '''! Create profile input file to be read by load_profiles()
 
     @param filename Name of input file, see options in set_profiles()
@@ -41,14 +71,16 @@ def create_prof_file(self, filename, profile_dict, name):
             y = numpy.array(y.copy())
         if numpy.min(numpy.diff(x)) < 0.0:
             raise ValueError("psi values in {0} profile must be monotonically increasing".format(name))
-        if (x[0] < 0.0) or (x[-1] > 1.0):
-            raise ValueError("Invalid psi values in {0} profile ({1}, {2})".format(name, x[0], x[-1]))
         if self.psi_convention == 0:
+            if (x[0] < 0.0) or ((x[-1] > 1.0) and not include_sol):
+                raise ValueError("Invalid psi values in {0} profile ({1}, {2})".format(name, x[0], x[-1]))
             x = 1.0 - x
             sort_inds = x.argsort()
             x = x[sort_inds]
             y = y[sort_inds]
         elif self.psi_convention == 1:
+            if ((x[0] < 0.0) and not include_sol) or (x[-1] > 1.0):
+                raise ValueError("Invalid psi values in {0} profile ({1}, {2})".format(name, x[0], x[-1]))
             pass
         else:
             raise ValueError('Unknown convention type, must be 0 (tokamak) or 1 (spheromak)')
@@ -152,6 +184,37 @@ class TokaMaker():
         self.dist_coils = {}
         ## Vacuum F value
         self._F0 = 0.0
+<<<<<<< HEAD
+=======
+        ## Include F*F' term in SOL?
+        self._F_SOL = False
+        ## Plasma current target value (use @ref TokaMaker.TokaMaker.set_targets "set_targets")
+        self._Ip_target=c_double(self._oft_env.float_disable_flag)
+        ## Plasma current target ratio I_p(FF') / I_p(P') (use @ref TokaMaker.TokaMaker.set_targets "set_targets")
+        self._Ip_ratio_target=c_double(self._oft_env.float_disable_flag)
+        ## Axis pressure target value (use @ref TokaMaker.TokaMaker.set_targets "set_targets")
+        self._pax_target=c_double(self._oft_env.float_disable_flag)
+        ## Stored energy target value (use @ref TokaMaker.TokaMaker.set_targets "set_targets")
+        self._estore_target=c_double(self._oft_env.float_disable_flag)
+        ## R0 target value (use @ref TokaMaker.TokaMaker.set_targets "set_targets")
+        self._R0_target=c_double(self._oft_env.float_disable_flag)
+        ## V0 target value (use @ref TokaMaker.TokaMaker.set_targets "set_targets")
+        self._V0_target=c_double(self._oft_env.float_disable_flag)
+        ## F*F' normalization value [1] (use @ref TokaMaker.TokaMaker.alam "alam" property)
+        self._alam = None
+        ## Pressure normalization value [1] (use @ref TokaMaker.TokaMaker.pnorm "pnorm" property)
+        self._pnorm = None
+        ## Location of O-point (magnetic axis) [2]
+        self.o_point = None
+        ## Limiting point (limter or active X-point) [2]
+        self.lim_point = None
+        ## Location of X-points [20,2]
+        self.x_points = None
+        ## Diverted (limited) flag [1] (use @ref TokaMaker.TokaMaker.diverted "diverted" property)
+        self._diverted = None
+        ## Bounding values for \f$\psi\f$ (\f$\psi_a\f$,\f$\psi_0\f$) [2]
+        self.psi_bounds = None
+>>>>>>> Add-SOL
         ## Normalized flux convention (0 -> tokamak, 1 -> spheromak)
         self.psi_convention = 0
         ## Number of regions in mesh
@@ -205,6 +268,23 @@ class TokaMaker():
         self.coil_sets = {}
         self._virtual_coils = {'#VSC': {'id': -1 ,'facs': {}}}
         self._F0 = 0.0
+<<<<<<< HEAD
+=======
+        self._F_SOL = False
+        self._Ip_target=c_double(self._oft_env.float_disable_flag)
+        self._Ip_ratio_target=c_double(self._oft_env.float_disable_flag)
+        self._pax_target=c_double(self._oft_env.float_disable_flag)
+        self._estore_target=c_double(self._oft_env.float_disable_flag)
+        self._R0_target=c_double(self._oft_env.float_disable_flag)
+        self._V0_target=c_double(self._oft_env.float_disable_flag)
+        self._alam = None
+        self._pnorm = None
+        self.o_point = None
+        self.lim_point = None
+        self.x_points = None
+        self._diverted = None
+        self.psi_bounds = None
+>>>>>>> Add-SOL
         self.nregs = -1
         self.ncoils = -1
         self.np = -1
@@ -707,7 +787,7 @@ class TokaMaker():
         if error_string.value != b'':
             raise ValueError("Error in initialization: {0}".format(error_string.value.decode()))
 
-    def load_profiles(self, f_file='none', foffset=None, p_file='none', eta_file='none', f_NI_file='none'):
+    def load_profiles(self, f_file='none', foffset=None, f_SOL=None, p_file='none', eta_file='none', f_NI_file='none'):
         r'''! Load flux function profiles (\f$F*F'\f$ and \f$P'\f$) from files
 
         @param f_file File containing \f$F*F'\f$ (or \f$F'\f$ if `mode=0`) definition
@@ -716,11 +796,26 @@ class TokaMaker():
         @param eta_file File containing $\eta$ definition
         @param f_NI_file File containing non-inductive \f$F*F'\f$ definition
         '''
+<<<<<<< HEAD
         if self._tMaker_equil is None:
             raise ValueError("Equilibrium object is `None`")
         return self._tMaker_equil.load_profiles(f_file,foffset,p_file,eta_file,f_NI_file)
+=======
+        if foffset is not None:
+            self._F0 = foffset
+        if f_SOL is not None:
+            self._F_SOL = f_SOL
+        f_file_c = self._oft_env.path2c(f_file)
+        p_file_c = self._oft_env.path2c(p_file)
+        eta_file_c = self._oft_env.path2c(eta_file)
+        f_NI_file_c = self._oft_env.path2c(f_NI_file)
+        error_string = self._oft_env.get_c_errorbuff()
+        tokamaker_load_profiles(self._tMaker_ptr,f_file_c,c_double(self._F0),c_bool(self._F_SOL),p_file_c,eta_file_c,f_NI_file_c,error_string)
+        if error_string.value != b'':
+            raise Exception(error_string.value)
+>>>>>>> Add-SOL
 
-    def set_profiles(self, ffp_prof=None, foffset=None, pp_prof=None, ffp_NI_prof=None, keep_files=False):
+    def set_profiles(self, ffp_prof=None, foffset=None, f_SOL=None, pp_prof=None, ffp_NI_prof=None, keep_files=False):
         r'''! Set flux function profiles (\f$F*F'\f$ and \f$P'\f$) using a piecewise linear definition
 
         @param ffp_prof Dictionary object containing FF' profile ['y'] and sampled locations in normalized Psi ['x']
@@ -729,9 +824,40 @@ class TokaMaker():
         @param ffp_NI_prof Dictionary object containing non-inductive FF' profile ['y'] and sampled locations in normalized Psi ['x']
         @param keep_files Retain temporary profile files
         '''
+<<<<<<< HEAD
         if self._tMaker_equil is None:
             raise ValueError("Equilibrium object is `None`")
         return self._tMaker_equil.set_profiles(ffp_prof,foffset,pp_prof,ffp_NI_prof,keep_files)
+=======
+        delete_files = []
+        if f_SOL is not None:
+            self._F_SOL = f_SOL
+        ffp_file = 'none'
+        if ffp_prof is not None:
+            ffp_file = self._oft_env.unique_tmpfile('tokamaker_f.prof')
+            create_prof_file(self, ffp_file, ffp_prof, "F*F'", self._F_SOL)
+            delete_files.append(ffp_file)
+        pp_file = 'none'
+        if pp_prof is not None:
+            pp_file = self._oft_env.unique_tmpfile('tokamaker_p.prof')
+            create_prof_file(self, pp_file, pp_prof, "P'", include_sol = f_SOL)
+            delete_files.append(pp_file)
+        eta_file = 'none'
+        ffp_NI_file = 'none'
+        if ffp_NI_prof is not None:
+            ffp_NI_file = self._oft_env.unique_tmpfile('tokamaker_ffp_NI.prof')
+            create_prof_file(self, ffp_NI_file, ffp_NI_prof, "ffp_NI")
+            delete_files.append(ffp_NI_file)
+        if foffset is not None:
+            self._F0 = foffset
+        self.load_profiles(ffp_file,foffset,f_SOL,pp_file,eta_file,ffp_NI_file)
+        if not keep_files:
+            for file in delete_files:
+                try:
+                    os.remove(file)
+                except:
+                    print('Warning: unable to delete temporary file "{0}"'.format(file))
+>>>>>>> Add-SOL
 
     def set_resistivity(self, eta_prof=None):
         r'''! Set flux function profile $\eta$ using a piecewise linear definition
@@ -3030,3 +3156,47 @@ class TokaMaker_equilibrium():
         tokamaker_save_tokamaker(self._equil_ptr,cfilename,error_string)
         if error_string.value != b'':
             raise Exception(error_string.value)
+        return time.value, dt.value, nl_its.value, lin_its.value, nretry.value
+    
+    def plot_current_density(self, fig, ax):
+        psi = self.get_psi(normalized=True)
+        currents = self.get_delstar_curr(psi)
+        curr_densities = numpy.zeros(self.nc)
+
+        max_cd = 2.5E6 # TODO: remove hardcoded value
+        plasma_area = 0.0
+
+        for i in range(self.nc):
+            if self.reg[i] not in [1, 3]:
+                continue # Ignore all regions except plasma and vacuum
+            idx1, idx2, idx3 = self.lc[i]
+            rz1 = self.r[idx1][:2]
+            rz2 = self.r[idx2][:2]
+            rz3 = self.r[idx3][:2]
+            curr_densities[i] = currents[idx1]
+            cell_area = numpy.linalg.norm(numpy.cross(rz2 - rz1, rz3 - rz1))/2.0
+            if self.reg[i] == 1:
+                plasma_area += cell_area
+
+        curr_densities = curr_densities / plasma_area
+
+        for i in range(self.nc):
+            idx1, idx2, idx3 = self.lc[i]
+            rz1 = self.r[idx1][:2]
+            rz2 = self.r[idx2][:2]
+            rz3 = self.r[idx3][:2]
+            if numpy.abs(curr_densities[i]) > max_cd:
+                color = [1.0, 0.0, 1.0, 1.0]
+            elif curr_densities[i] > 0:
+                color = [0.0, 1.0, 0.0, curr_densities[i] / max_cd]
+            else:
+                color = [0.0, 0.0, 1.0, numpy.abs(curr_densities[i]) / max_cd]
+            poly = Polygon([rz1, rz2, rz3], facecolor=color)
+            ax.add_patch(poly)
+        
+        cmap = ListedColormap([[0.0, 0.0, 1.0, 1.0], [0.0, 0.0, 1.0, 0.5], [1.0, 1.0, 1.0, 1.0], [0.0, 1.0, 0.0, 0.5], [0.0, 1.0, 0.0, 1.0]])
+        bounds = numpy.linspace(-5.0, 5.0, 6)
+        norm = matplotlib.colors.BoundaryNorm(bounds, 5)
+        # formatter = mticker.ScalarFormatter()
+        fig.colorbar(matplotlib.cm.ScalarMappable(norm=norm,cmap=cmap),
+             ax=ax, orientation='vertical', label='Current Density [MA/m2]')
