@@ -542,11 +542,32 @@ class gs_Domain:
                 vac_id += 1
         return cond_list
     
-    def build_mesh(self,debug=False,merge_thresh=1.E-4,require_boundary=True,setup_only=False,cubit_path=None,cubit_gradation=1.05):
+    def build_mesh(self,debug=False,merge_thresh=1.E-4,require_boundary=True,setup_only=False,cubit_path=None,cubit_gradation=1.05,plot_regs=False):
         '''! Build mesh for specified domains
 
         @result Meshed representation (pts[np,2], tris[nc,3], regions[nc])
         '''
+        def plot_regions():
+            import matplotlib.pyplot as plt
+            fig, ax = plt.subplots(figsize=(20,20))
+            heatmap = plt.tripcolor(
+                self._r[:,0], self._r[:,1],
+                self._lc,
+                facecolors=self._reg,
+                cmap='gist_ncar',
+                vmax=5
+            )
+            fig.colorbar(heatmap, ax=ax)
+
+            n_unclaimed = 0
+            for i, r_idx in enumerate(self._lc):
+                if self._reg[i] == 0:
+                    n_unclaimed += 1
+                    ax.scatter(self._r[r_idx[0]][0], self._r[r_idx[0]][1], color='k', marker='*')
+
+            plt.show()
+            print(f'{n_unclaimed}/{len(self._lc)} triangles are unclaimed.')
+
         # Check for single plasma region
         if self.reg_type_counts['plasma'] == 0:
             raise ValueError('No plasma region specified')
@@ -616,6 +637,8 @@ class gs_Domain:
                 json.dump({'regions': regions_full, 'tri_gradation': cubit_gradation}, json_file)
             if not setup_only:
                 self._r, self._lc, self._reg = run_cubit(cubit_path)
+                if plot_regs:
+                    plot_regions()
                 if self._reg.min() <= 0:
                     raise ValueError('Meshing error: unclaimed region detected!')
                 return self._r, self._lc, self._reg
@@ -623,6 +646,8 @@ class gs_Domain:
             self.mesh = Mesh(self.regions,debug=debug,extra_reg_defs=self._extra_reg_defs,merge_thresh=merge_thresh)
             if not setup_only:
                 self._r, self._lc, self._reg = self.mesh.get_mesh()
+                if plot_regs:
+                    plot_regions()
                 if self._reg.min() <= 0:
                     raise ValueError('Meshing error: unclaimed region detected!')
                 return self._r, self._lc, self._reg
