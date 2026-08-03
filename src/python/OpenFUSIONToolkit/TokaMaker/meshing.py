@@ -640,7 +640,7 @@ class gs_Domain:
                 if plot_regs:
                     plot_regions()
                 if self._reg.min() <= 0:
-                    raise ValueError('Meshing error: unclaimed region detected!')
+                    raise ValueError('Meshing error: unclaimed region detected! Consider setting plot_regs=True to debug.')
                 return self._r, self._lc, self._reg
         else:
             self.mesh = Mesh(self.regions,debug=debug,extra_reg_defs=self._extra_reg_defs,merge_thresh=merge_thresh)
@@ -649,7 +649,7 @@ class gs_Domain:
                 if plot_regs:
                     plot_regions()
                 if self._reg.min() <= 0:
-                    raise ValueError('Meshing error: unclaimed region detected!')
+                    raise ValueError('Meshing error: unclaimed region detected! Consider setting plot_regs=True to debug.')
                 return self._r, self._lc, self._reg
         return None, None, None
     
