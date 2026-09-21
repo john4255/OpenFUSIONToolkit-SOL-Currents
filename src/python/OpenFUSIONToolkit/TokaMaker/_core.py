@@ -1008,7 +1008,7 @@ class TokaMaker():
         )
         self.set_psi_constraints(locations,targets,weights)
 
-    def set_flux_constraints(self,locations,targets,weights=None):
+    def set_flux_constraints(self,locations,targets,weights=None,eq_idx=0):
         r'''! Set explicit flux constraint points \f$ \psi(x_i) \f$ [Wb]
 
         @param locations List of points defining constraints [:,2]
@@ -1018,7 +1018,7 @@ class TokaMaker():
         if (weights is None) and (locations is not None):
             weights = numpy.ones((locations.shape[0],), dtype=numpy.float64)
         weights = weights*(2.0*numpy.pi) if weights is not None else None
-        self.set_psi_constraints(locations,targets/(2.0*numpy.pi),weights)
+        self.set_psi_constraints(locations,targets/(2.0*numpy.pi),weights,eq_idx=eq_idx)
 
     def set_psi_constraints(self,locations,targets,weights=None,eq_idx=0):
         r'''! Set explicit flux constraint points \f$ \psi(x_i) \f$ [Wb/rad]
@@ -1047,7 +1047,7 @@ class TokaMaker():
             tokamaker_set_flux(self._tMaker_ptr,locations,targets,weights,locations.shape[0],-1.0,eq_idx+1,error_string)
             if error_string.value != b'':
                 raise Exception(error_string.value)
-            self._tMaker_equil._psi_constraints = (locations.copy(), targets.copy())
+            self._tMaker_equil[eq_idx]._psi_constraints = (locations.copy(), targets.copy())
 
     def set_saddles(self,saddles,weights=None):
         '''! Set saddle constraint points (poloidal field should vanish at each point)
@@ -1219,7 +1219,7 @@ class TokaMaker():
             target_dict['Z0'] = self._tMaker_equil.Z0_target
         return target_dict
 
-    def get_delstar_curr(self,psi):
+    def get_delstar_curr(self,psi,eq_idx=0):
         r'''! Get toroidal current density from \f$ \psi \f$ through \f$ \Delta^{*} \f$ operator
 
         @deprecated Use `calc_delstar_curr` instead.
@@ -1232,17 +1232,17 @@ class TokaMaker():
             DeprecationWarning,
             stacklevel=2
         )
-        return self.calc_delstar_curr(psi)
+        return self.calc_delstar_curr(psi,eq_idx=eq_idx)
 
-    def calc_delstar_curr(self,psi):
+    def calc_delstar_curr(self,psi,eq_idx=0):
         r'''! Get toroidal current density from \f$ \psi \f$ through \f$ \Delta^{*} \f$ operator
 
         @param psi \f$ \psi \f$ corresponding to desired current density
         @result \f$ J_{\phi} = \textrm{M}^{-1} \Delta^{*} \psi \f$ [A/m^2]
         '''
-        if self._tMaker_equil is None:
-            raise ValueError("Equilibrium object is `None`")
-        return self._tMaker_equil.calc_delstar_curr(psi)
+        if len(self._tMaker_equil) == 0:
+            raise ValueError("Equilibrium list is empty")
+        return self._tMaker_equil[eq_idx].calc_delstar_curr(psi)
 
     def get_jtor_plasma(self):
         r'''! Get plasma toroidal current density for current equilibrium
@@ -1423,15 +1423,15 @@ class TokaMaker():
             raise ValueError("Equilibrium object is `None`")
         return self._tMaker_equil.calc_sauter_fc(psi,psi_pad,npsi)
 
-    def get_globals(self):
+    def get_globals(self,eq_idx=0):
         r'''! Get global plasma parameters
 
         @result Ip, [R_Ip, Z_Ip], \f$\int dV\f$, \f$\int P dV\f$, diamagnetic flux,
         enclosed toroidal flux
         '''
-        if self._tMaker_equil is None:
-            raise ValueError("Equilibrium object is `None`")
-        return self._tMaker_equil.get_globals()
+        if len(self._tMaker_equil) == 0:
+            raise ValueError("Equilibrium list is empty")
+        return self._tMaker_equil[eq_idx].get_globals()
 
     def calc_loopvoltage(self):
         r'''! Get plasma loop voltage
@@ -2682,7 +2682,7 @@ class TokaMaker_equilibrium():
             raise Exception(error_string.value)
         return self._tMaker.coil_vec2dict(currents), currents_reg
 
-    def get_globals(self):
+    def get_globals(self,eq_idx=0):
         r'''! Get global plasma parameters
 
         @result Ip, [R_Ip, Z_Ip], \f$\int dV\f$, \f$\int P dV\f$, diamagnetic flux,
@@ -2839,7 +2839,7 @@ class TokaMaker_equilibrium():
             field_dim = 2
         return TokaMaker_field_interpolator(self._equil_ptr,int_obj,imode,field_dim)
 
-    def get_stats(self,lcfs_pad=None,axis_pad=0.02,li_normalization='std',geom_type='max',beta_Ip=None):
+    def get_stats(self,lcfs_pad=None,axis_pad=0.02,li_normalization='std',geom_type='max',beta_Ip=None,eq_idx=0):
         r'''! Get information (Ip, q, kappa, etc.) about current G-S equilbirium
 
         See eq. 1 for `li_normalization='std'` and eq 2. for `li_normalization='iter'`
@@ -2851,7 +2851,7 @@ class TokaMaker_equilibrium():
         @param beta_Ip Override \f$ I_p \f$ used for beta calculations
         @result Dictionary of equilibrium parameters
         '''
-        Ip,centroid,vol,pvol,dflux,tflux,Bp_vol = self.get_globals()
+        Ip,centroid,vol,pvol,dflux,tflux,Bp_vol = self.get_globals(eq_idx=eq_idx)
         if beta_Ip is not None:
             Ip = beta_Ip
         p_psi = numpy.linspace(0.0,1.0,100)
