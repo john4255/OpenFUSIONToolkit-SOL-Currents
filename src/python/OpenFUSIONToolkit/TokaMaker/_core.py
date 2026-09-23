@@ -1075,7 +1075,7 @@ class TokaMaker():
             tokamaker_set_saddles(self._tMaker_ptr,numpy.zeros((1,1)),numpy.zeros((1,)),0,eq_idx+1,error_string)
             if error_string.value != b'':
                 raise Exception(error_string.value)
-            self._tMaker_equil._saddle_targets = None
+            self._tMaker_equil[eq_idx]._saddle_targets = None
         else:
             if weights is None:
                 weights = numpy.ones((saddles.shape[0],), dtype=numpy.float64)
@@ -1087,9 +1087,9 @@ class TokaMaker():
             tokamaker_set_saddles(self._tMaker_ptr,saddles,weights,saddles.shape[0],eq_idx+1,error_string)
             if error_string.value != b'':
                 raise Exception(error_string.value)
-            self._tMaker_equil._saddle_targets = saddles.copy()
+            self._tMaker_equil[eq_idx]._saddle_targets = saddles.copy()
 
-    def set_mirnov_constraints(self,locations,norms,targets,weights=None):
+    def set_mirnov_constraints(self,locations,norms,targets,weights=None,eq_idx=0):
         r'''! Set explicit mirnov constraint points \f$ B \cdot \hat{n} \f$ [T]
 
         @param locations List of points defining constraints [:,2]
@@ -1099,7 +1099,7 @@ class TokaMaker():
         '''
         if locations is None:
             error_string = self._oft_env.get_c_errorbuff()
-            tokamaker_set_mirnov(self._tMaker_ptr,numpy.zeros((1,1)),numpy.zeros((1,1)),numpy.zeros((1,)),numpy.zeros((1,)),0,error_string)
+            tokamaker_set_mirnov(self._tMaker_ptr,numpy.zeros((1,1)),numpy.zeros((1,1)),numpy.zeros((1,)),numpy.zeros((1,)),0,eq_idx+1,error_string)
             if error_string.value != b'':
                 raise Exception(error_string.value)
             self._tMaker_equil._mirnov_constraints = None
@@ -1117,10 +1117,10 @@ class TokaMaker():
             targets = numpy.ascontiguousarray(targets, dtype=numpy.float64)
             weights = numpy.ascontiguousarray(weights, dtype=numpy.float64)
             error_string = self._oft_env.get_c_errorbuff()
-            tokamaker_set_mirnov(self._tMaker_ptr,locations,norms,targets,weights,locations.shape[0],error_string)
+            tokamaker_set_mirnov(self._tMaker_ptr,locations,norms,targets,weights,locations.shape[0],eq_idx+1,error_string)
             if error_string.value != b'':
                 raise Exception(error_string.value)
-            self._tMaker_equil._mirnov_constraints = (locations.copy(), norms.copy(), targets.copy())
+            self._tMaker_equil[eq_idx]._mirnov_constraints = (locations.copy(), norms.copy(), targets.copy())
 
     def set_targets(self,Ip=None,Ip_ratio=None,pax=None,estore=None,Dflux=None,R0=None,V0=None,Z0=None,retain_previous=False,eq_idx=0):
         r'''! Set global target values
@@ -1305,7 +1305,7 @@ class TokaMaker():
         tokamaker_equil_set(self._tMaker_ptr,tmp_eq.c_ptr,eq_idx+1,error_string)
         if error_string.value != b'':
             raise Exception(error_string.value)
-        self._tMaker_equil = tmp_eq
+        self._tMaker_equil[eq_idx] = tmp_eq
 
     def get_psi(self,normalized=True,eq_idx=0):
         r'''! Get poloidal flux values on node points
@@ -1881,7 +1881,7 @@ class TokaMaker():
         # Make 1:1 aspect ratio
         ax.set_aspect('equal','box')
 
-    def plot_constraints(self,fig,ax,equilibrium=None,isoflux_color='tab:red',isoflux_marker='+',saddle_color='tab:green',saddle_marker='x'):
+    def plot_constraints(self,fig,ax,equilibrium=None,isoflux_color='tab:red',isoflux_marker='+',saddle_color='tab:green',saddle_marker='x',eq_idx=0):
         '''! Plot geometry constraints
 
         @param fig Figure to add to
@@ -1892,7 +1892,7 @@ class TokaMaker():
         '''
         # Get equilibrium object if not set
         if equilibrium is None:
-            equilibrium = self._tMaker_equil
+            equilibrium = self._tMaker_equil[eq_idx]
         # Plot isoflux constraints
         if (isoflux_color is not None) and (equilibrium.Isoflux_constraints is not None):
             ax.plot(equilibrium.Isoflux_constraints[:,0],equilibrium.Isoflux_constraints[:,1],color=isoflux_color,marker=isoflux_marker,linestyle='none')
