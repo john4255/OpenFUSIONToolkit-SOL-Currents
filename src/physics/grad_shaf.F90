@@ -2335,6 +2335,7 @@ integer(i4) :: ierr_loc, error_flag
 ierr = 0
 ierr_loc = 0
 error_flag = 0
+converged = .FALSE.
 
 !---Ramp R0 target
 self%R0_tmp=(i-1)*(equil%R0_target-self%R0_in)/REAL(factory%nR0_ramp,8) + self%R0_in
@@ -2726,7 +2727,8 @@ IF(oft_env%pm)THEN
   WRITE(*,'(2A)')oft_indent,'Starting non-linear GS solver (update)'
   CALL oft_increase_indent
 END IF
-! ALLOCATE(self%gs_solver)
+! DEALLOCATE(self%gs_solvers)
+! ALLOCATE(self%gs_solvers(1))
 CALL self%gs_solvers(1)%setup(self, equil)
 DO i=1,self%maxits
   CALL self%gs_solvers(1)%step(self, equil, i, converged, step_err)
@@ -2739,6 +2741,7 @@ DO i=1,self%maxits
     EXIT
   END IF
   IF(converged)THEN
+    print *, 'CONVERGED'
     !---Output
     IF(self%save_visit.AND.self%plot_final)THEN
       self%gs_solvers(1)%eq_count=self%gs_solvers(1)%eq_count+1
