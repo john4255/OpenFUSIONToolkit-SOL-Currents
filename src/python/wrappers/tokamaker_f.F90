@@ -359,7 +359,7 @@ END SUBROUTINE tokamaker_equil_destroy
 !---------------------------------------------------------------------------------
 SUBROUTINE tokamaker_setup(tMaker_ptr,order,full_domain,ncoils,coil_Lmat,n_eq,error_str) BIND(C,NAME="tokamaker_setup")
 TYPE(c_ptr), VALUE, INTENT(in) :: tMaker_ptr !< Pointer to TokaMaker object
-TYPE(c_ptr), INTENT(out) :: fe_ptr !< Pointer to FE representation object
+! TYPE(c_ptr), INTENT(out) :: fe_ptr !< Pointer to FE representation object
 INTEGER(KIND=c_int), VALUE, INTENT(in) :: order !< FE order for Lagrange elements
 LOGICAL(KIND=c_bool), VALUE, INTENT(in) :: full_domain !< Plasma covers full domain (eg. fixed-boundary solves)?
 INTEGER(KIND=c_int), INTENT(out) :: ncoils !< Number of coils in model
