@@ -1741,9 +1741,10 @@ END SUBROUTINE tokamaker_set_flux
 !---------------------------------------------------------------------------------
 !> Sets the mirnov targets for a TokaMaker instance
 !---------------------------------------------------------------------------------
-SUBROUTINE tokamaker_set_mirnov(tMaker_ptr,locations,norms,targets,weights,ntargets,error_str) BIND(C,NAME="tokamaker_set_mirnov")
+SUBROUTINE tokamaker_set_mirnov(tMaker_ptr,locations,norms,targets,weights,ntargets,eq_idx,error_str) BIND(C,NAME="tokamaker_set_mirnov")
 TYPE(c_ptr), VALUE, INTENT(in) :: tMaker_ptr !< TokaMaker instance
 INTEGER(c_int), VALUE, INTENT(in) :: ntargets !< Number of Mirnov target points
+INTEGER(c_int), VALUE, INTENT(in) :: eq_idx !< Eq index
 REAL(c_double), INTENT(in) :: locations(2,ntargets) !< Mirnov target locations
 REAL(c_double), INTENT(in) :: norms(2,ntargets) !< Mirnov target normals
 REAL(c_double), INTENT(in) :: targets(ntargets) !< Mirnov target values
@@ -1753,14 +1754,14 @@ INTEGER :: i
 TYPE(tokamaker_instance), POINTER :: tMaker_obj
 IF(.NOT.tokamaker_ccast(tMaker_ptr,tMaker_obj,error_str))RETURN
 IF(.NOT.tokamaker_require_equil(tMaker_obj,error_str))RETURN
-IF(ASSOCIATED(tMaker_obj%gs_equils(1)%eq%mirnov_targets))DEALLOCATE(tMaker_obj%gs_equils(1)%eq%mirnov_targets)
-tMaker_obj%gs_equils(1)%eq%mirnov_ntargets=ntargets
+IF(ASSOCIATED(tMaker_obj%gs_equils(eq_idx)%eq%mirnov_targets))DEALLOCATE(tMaker_obj%gs_equils(1)%eq%mirnov_targets)
+tMaker_obj%gs_equils(eq_idx)%eq%mirnov_ntargets=ntargets
 IF(ntargets>0)THEN
   ALLOCATE(tMaker_obj%gs_equils(1)%eq%mirnov_targets(6,tMaker_obj%gs_equils(1)%eq%mirnov_ntargets))
-  tMaker_obj%gs_equils(1)%eq%mirnov_targets(1:2,:)=locations
-  tMaker_obj%gs_equils(1)%eq%mirnov_targets(3:4,:)=norms
-  tMaker_obj%gs_equils(1)%eq%mirnov_targets(5,:)=targets
-  tMaker_obj%gs_equils(1)%eq%mirnov_targets(6,:)=weights
+  tMaker_obj%gs_equils(eq_idx)%eq%mirnov_targets(1:2,:)=locations
+  tMaker_obj%gs_equils(eq_idx)%eq%mirnov_targets(3:4,:)=norms
+  tMaker_obj%gs_equils(eq_idx)%eq%mirnov_targets(5,:)=targets
+  tMaker_obj%gs_equils(eq_idx)%eq%mirnov_targets(6,:)=weights
 END IF
 END SUBROUTINE tokamaker_set_mirnov
 !---------------------------------------------------------------------------------
