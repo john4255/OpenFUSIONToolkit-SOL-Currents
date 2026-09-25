@@ -188,6 +188,8 @@ class TokaMaker():
         self._oft_env = OFT_env
         ## Internal Grad-Shafranov object (@ref psi_grad_shaf.gs_factory "gs_factory")
         self._tMaker_ptr = c_void_p()
+        ## Internal FE representation object
+        self._fe_ptr = c_void_p()
         ## Internal mesh object
         self._mesh_ptr = c_void_p()
         ## General settings object
@@ -429,7 +431,7 @@ class TokaMaker():
         ncoils = c_int()
         Lmat_loc = c_double_ptr()
         error_string = self._oft_env.get_c_errorbuff()
-        tokamaker_setup(self._tMaker_ptr,order,full_domain,ctypes.byref(ncoils),ctypes.byref(Lmat_loc),self.n_eq,error_string)
+        tokamaker_setup(self._tMaker_ptr,ctypes.byref(self._fe_ptr),order,full_domain,ctypes.byref(ncoils),ctypes.byref(Lmat_loc),self.n_eq,error_string)
         if error_string.value != b'':
             raise Exception(error_string.value)
         # Update vacuum flux
@@ -1394,7 +1396,7 @@ class TokaMaker():
         if error_string.value != b'':
             raise Exception(error_string.value)
 
-    def get_field_eval(self,field_type,eq_idx=0):
+    def get_field_eval(self,field_type,values=None,eq_idx=0):
         r'''! Create field interpolator for vector potential
 
         @param field_type Field to interpolate, must be one of ("B", "psi", "F", "P", "dPSI", "dBr", "dBt", or "dBz")
@@ -1403,10 +1405,19 @@ class TokaMaker():
         @param eq_idx Index of relevant equilibrium object
         @result Field interpolation object
         '''
+        if values is not None:
+            if values.shape[0] != self.np:
+                raise IndexError('Incorrect shape of "values", should be [np]')
+            if field_type not in ("eval","grad"):
+                raise ValueError('When specifying "values", field_type must be one of ("eval","grad")')
+            field_type = {"eval": 1, "grad": 2}[field_type]
+            return Lagrange_2D_field_interpolator(self._oft_env,self._fe_ptr,values,field_type)
         if len(self._tMaker_equil) == 0:
-            raise ValueError("Equilibrium list is empty")
+            raise ValueError("Equilibrium object is `None`")
+        if field_type in ("eval","grad"):
+            raise ValueError('field_type must be one of ("B","psi","F","P","dPSI","dBr","dBt","dBz") when `values=None`')
         return self._tMaker_equil[eq_idx].get_field_eval(field_type)
-
+    
     def get_coil_currents(self, eq_idx=0):
         '''! Get currents in each coil [A] and coil region [A-turns]
 
