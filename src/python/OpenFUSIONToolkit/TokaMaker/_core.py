@@ -241,8 +241,6 @@ class TokaMaker():
         ## Internal Grad-Shafranov eq object (@ref psi_grad_shaf.gs_equil "gs_equil")
         self._tMaker_equil = []
 
-        print('Finished TM constructor')
-
     def __del__(self):
         '''! Free Fortran-side objects by calling `reset()` before object is deleted or GC'd'''
         self.reset()

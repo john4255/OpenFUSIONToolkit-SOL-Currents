@@ -2754,7 +2754,6 @@ DO i=1,self%maxits
     EXIT
   END IF
   IF(converged)THEN
-    print *, 'CONVERGED'
     !---Output
     IF(self%save_visit.AND.self%plot_final)THEN
       self%gs_solvers(1)%eq_count=self%gs_solvers(1)%eq_count+1
