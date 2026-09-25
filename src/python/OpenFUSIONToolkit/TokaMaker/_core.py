@@ -487,12 +487,18 @@ class TokaMaker():
 
     @property
     def c_ptr(self):
-        r'''! C pointer to Fortran-side TokaMaker object'''
+        r'''! C pointer to Fortran-side TokaMaker object
+
+        @param eq_idx Index of relevant equilibrium object
+        '''
         return self._tMaker_ptr
 
     @property
     def ffp_scale(self,eq_idx=0):
-        r'''! F*F' scale value'''
+        r'''! F*F' scale value
+        
+        @param eq_idx Index of relevant equilibrium object
+        '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
         return self._tMaker_equil[eq_idx].ffp_scale
@@ -505,7 +511,10 @@ class TokaMaker():
 
     @property
     def p_scale(self,eq_idx=0):
-        r'''! Pressure scale value'''
+        r'''! Pressure scale value
+        
+        @param eq_idx Index of relevant equilibrium object
+        '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
         return self._tMaker_equil[eq_idx].p_scale
@@ -540,28 +549,40 @@ class TokaMaker():
 
     @property
     def diverted(self, eq_idx=0):
-        r'''! Diverted flag (limited if `False`)'''
+        r'''! Diverted flag (limited if `False`)
+        
+        @param eq_idx Index of relevant equilibrium object
+        '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
         return self._tMaker_equil[eq_idx].diverted
 
     @property
     def o_point(self,eq_idx=0):
-        r'''! Location of O-point (magnetic axis) [2]'''
+        r'''! Location of O-point (magnetic axis) [2]
+        
+        @param eq_idx Index of relevant equilibrium object
+        '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
         return self._tMaker_equil[eq_idx].o_point
 
     @property
     def lim_point(self,eq_idx=0):
-        r'''! Limiting point (limter or active X-point) [2]'''
+        r'''! Limiting point (limter or active X-point) [2]
+        
+        @param eq_idx Index of relevant equilibrium object
+        '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
         return self._tMaker_equil[eq_idx].lim_point
 
     @property
     def psi_bounds(self,eq_idx=0):
-        r'''! Bounding values for \f$\psi\f$ (\f$\psi_a\f$,\f$\psi_0\f$) [2]'''
+        r'''! Bounding values for \f$\psi\f$ (\f$\psi_a\f$,\f$\psi_0\f$) [2]
+        
+        @param eq_idx Index of relevant equilibrium object
+        '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
         return self._tMaker_equil[eq_idx].psi_bounds
@@ -622,6 +643,7 @@ class TokaMaker():
         r'''! Convert unnormalized \f$ \psi \f$ values to normalized \f$ \hat{\psi} \f$ values
 
         @param psi_in Input \f$ \psi \f$ values
+        @param eq_idx Index of relevant equilibrium object
         @returns Normalized \f$ \hat{\psi} \f$ values
         '''
         if len(self._tMaker_equil) == 0:
@@ -632,6 +654,7 @@ class TokaMaker():
         r'''! Convert normalized \f$ \hat{\psi} \f$ values to unnormalized values \f$ \psi \f$
 
         @param psi_in Input \f$ \hat{\psi} \f$ values
+        @param eq_idx Index of relevant equilibrium object
         @returns Unnormalized \f$ \psi \f$ values
         '''
         if len(self._tMaker_equil) == 0:
@@ -662,7 +685,7 @@ class TokaMaker():
         @param reg_targets Regularization targets [nregularize] (default: 0)
         @param reg_weights Weights for regularization terms [nregularize] (default: 1)
         @param reg_terms List of regularization terms created with @ref coil_reg_term
-        @param eq_idx Index of equilibrium for which we are setting the coil reg
+        @param eq_idx Index of relevant equilibrium object
         '''
         if reg_terms is not None:
             if reg_mat is not None:
@@ -776,7 +799,7 @@ class TokaMaker():
         @param a Minor radius for flux surface-based approach
         @param kappa Elongation for flux surface-based approach
         @param delta Triangularity for flux surface-based approach
-        @param eq_idx Index of equilibrium for which we are setting the flux.
+        @param eq_idx Index of relevant equilibrium object
         @param curr_source Current source for arbitrary current distribution
         '''
         curr_ptr = None
@@ -798,6 +821,7 @@ class TokaMaker():
         @param p_file File containing \f$P'\f$ definition
         @param eta_file File containing $\eta$ definition
         @param f_NI_file File containing non-inductive \f$F*F'\f$ definition
+        @param eq_idx Index of relevant equilibrium object
         '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
@@ -811,6 +835,7 @@ class TokaMaker():
         @param pp_prof Dictionary object containing P' profile ['y'] and sampled locations in normalized Psi ['x']
         @param ffp_NI_prof Dictionary object containing non-inductive FF' profile ['y'] and sampled locations in normalized Psi ['x']
         @param keep_files Retain temporary profile files
+        @param eq_idx Index of relevant equilibrium object
         '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
@@ -820,6 +845,7 @@ class TokaMaker():
         r'''! Retrieve degrees of freedom for desired flux profile
 
         @param prof_type Profile type ('ffp' or 'pp')
+        @param eq_idx Index of relevant equilibrium object
         @returns Values for profile degrees of freedom
         '''
         if len(self._tMaker_equil) == 0:
@@ -830,6 +856,7 @@ class TokaMaker():
         r'''! Set degrees of freedom for desired flux profile
 
         @param prof_type Profile type ('ffp' or 'pp')
+        @param eq_idx Index of relevant equilibrium object
         @param values New values for profile degrees of freedom
         '''
         if len(self._tMaker_equil) == 0:
@@ -843,6 +870,7 @@ class TokaMaker():
         \f$\hat{\psi}_i = [0,1]\f$.
 
         @param eta_prof Values defining $\eta$ [:,2]
+        @param eq_idx Index of relevant equilibrium object
         '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
@@ -853,6 +881,7 @@ class TokaMaker():
 
         @param vacuum Perform vacuum solve? Plasma-related targets (eg. `Ip`) will be ignored.
         @param return_its Return the number of nonlinear iterations?
+        @param eq_idx Index of relevant equilibrium object
         @result Equilibrium object
         '''
         nl_its = c_int()
@@ -911,6 +940,7 @@ class TokaMaker():
         @param li_normalization Form of normalized \f$ l_i \f$ ('std', 'ITER')
         @param geom_type Method for computing geometric major/minor radius ('max': Use LCFS extrema, 'mid': Use axis plane extrema)
         @param beta_Ip Override \f$ I_p \f$ used for beta calculations
+        @param eq_idx Index of relevant equilibrium object
         @result Dictionary of equilibrium parameters
         '''
         if len(self._tMaker_equil) == 0:
@@ -924,6 +954,7 @@ class TokaMaker():
         @param li_normalization Form of normalized \f$ l_i \f$ ('std', 'ITER')
         @param geom_type Method for computing geometric major/minor radius ('max': Use LCFS extrema, 'mid': Use axis plane extrema)
         @param beta_Ip Override \f$ I_p \f$ used for beta calculations
+        @param eq_idx Index of relevant equilibrium object
         '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
@@ -963,6 +994,7 @@ class TokaMaker():
         @param weights Weight to be applied to each constraint point [:] (default: 1)
         @param grad_wt_lim Limit on gradient-based weighting (negative to disable)
         @param ref_points Reference points for each isoflux point [:,2] (default: `isoflux[0,:]` is used for all points)
+        @param eq_idx Index of relevant equilibrium object
         '''
         if isoflux is None:
             error_string = self._oft_env.get_c_errorbuff()
@@ -1015,6 +1047,7 @@ class TokaMaker():
         @param locations List of points defining constraints [:,2]
         @param targets Target \f$ \psi \f$ value in Wb at each point [:]
         @param weights Weight to be applied to each constraint point [:] (default: 1)
+        @param eq_idx Index of relevant equilibrium object
         '''
         if (weights is None) and (locations is not None):
             weights = numpy.ones((locations.shape[0],), dtype=numpy.float64)
@@ -1027,6 +1060,7 @@ class TokaMaker():
         @param locations List of points defining constraints [:,2]
         @param targets Target \f$ \psi \f$ value in Wb/rad at each point [:]
         @param weights Weight to be applied to each constraint point [:] (default: 1)
+        @param eq_idx Index of relevant equilibrium object
         '''
         if locations is None:
             error_string = self._oft_env.get_c_errorbuff()
@@ -1070,6 +1104,7 @@ class TokaMaker():
 
         @param saddles List of points defining constraints [:,2]
         @param weights Weight to be applied to each constraint point [:] (default: 1)
+        @param eq_idx Index of relevant equilibrium object
         '''
         if saddles is None:
             error_string = self._oft_env.get_c_errorbuff()
@@ -1097,6 +1132,7 @@ class TokaMaker():
         @param norms List of normal vectors (\f$ \hat{n} \f$) at each constraint point [:,2]
         @param targets Target \f$ B \cdot \hat{n} \f$ value in T at each point [:]
         @param weights Weight to be applied to each constraint point [:] (default: 1)
+        @param eq_idx Index of relevant equilibrium object
         '''
         if locations is None:
             error_string = self._oft_env.get_c_errorbuff()
@@ -1137,7 +1173,7 @@ class TokaMaker():
         @param V0 Target vertical position for magnetic axis
         @param Z0 Target vertical position for magnetic axis
         @param retain_previous Keep previously set targets unless explicitly updated? (default: False)
-        @param eq_idx Index of equilibrium for which we are setting targets.
+        @param eq_idx Index of relevant equilibrium object
         '''
         def float_to_c(value):
             if value is None:
@@ -1226,6 +1262,7 @@ class TokaMaker():
         @deprecated Use `calc_delstar_curr` instead.
 
         @param psi \f$ \psi \f$ corresponding to desired current density
+        @param eq_idx Index of relevant equilibrium object
         @result \f$ J_{\phi} = \textrm{M}^{-1} \Delta^{*} \psi \f$ [A/m^2]
         '''
         warn(
@@ -1239,6 +1276,7 @@ class TokaMaker():
         r'''! Get toroidal current density from \f$ \psi \f$ through \f$ \Delta^{*} \f$ operator
 
         @param psi \f$ \psi \f$ corresponding to desired current density
+        @param eq_idx Index of relevant equilibrium object
         @result \f$ J_{\phi} = \textrm{M}^{-1} \Delta^{*} \psi \f$ [A/m^2]
         '''
         if len(self._tMaker_equil) == 0:
@@ -1262,6 +1300,7 @@ class TokaMaker():
     def calc_jtor_plasma(self,eq_idx=0):
         r'''! Get plasma toroidal current density for current equilibrium
 
+        @param eq_idx Index of relevant equilibrium object
         @result \f$ J_{\phi} \f$ by evalutating RHS source terms
         '''
         if len(self._tMaker_equil) == 0:
@@ -1273,6 +1312,7 @@ class TokaMaker():
 
         @param skip_targets When copying, skip copying target values
         @param skip_constraints When copying, skip copying constraint values
+        @param eq_idx Index of relevant equilibrium object
         @result New `TokaMaker_equilibrium` object with copied values
         '''
         if len(self._tMaker_equil) == 0:
@@ -1286,6 +1326,7 @@ class TokaMaker():
         @param source_file Path to a file containing a TokaMaker equilibrium
         @param skip_targets When copying, skip copying target values
         @param skip_constraints When copying, skip copying constraint values
+        @param eq_idx Index of relevant equilibrium object
         '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
@@ -1312,6 +1353,7 @@ class TokaMaker():
         r'''! Get poloidal flux values on node points
 
         @param normalized Normalize (and offset) poloidal flux
+        @param eq_idx Index of relevant equilibrium object
         @result \f$\hat{\psi} = \frac{\psi-\psi_0}{\psi_a-\psi_0} \f$ or \f$\psi\f$
         '''
         if len(self._tMaker_equil) == 0:
@@ -1323,6 +1365,7 @@ class TokaMaker():
 
         @param psi Poloidal flux values (should not be normalized!)
         @param update_bounds Update plasma bounds by determining new limiting points
+        @param eq_idx Index of relevant equilibrium object
         '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
@@ -1357,6 +1400,7 @@ class TokaMaker():
         @param field_type Field to interpolate, must be one of ("B", "psi", "F", "P", "dPSI", "dBr", "dBt", or "dBz")
         or ('eval', 'grad') if `Values` is specified
         @param values Optional field values to use for interpolation instead of TokaMaker options
+        @param eq_idx Index of relevant equilibrium object
         @result Field interpolation object
         '''
         if len(self._tMaker_equil) == 0:
@@ -1366,6 +1410,7 @@ class TokaMaker():
     def get_coil_currents(self, eq_idx=0):
         '''! Get currents in each coil [A] and coil region [A-turns]
 
+        @param eq_idx Index of relevant equilibrium object
         @result Coil currents [ncoils], Coil currents by region [nregs]
         '''
         if len(self._tMaker_equil) == 0:
@@ -1378,6 +1423,7 @@ class TokaMaker():
         @note This is the inductance in terms of A-turns. To get in terms of
         current in a single of the \f$n\f$ windings you must multiply by \f$n_i*n_j\f$.
 
+        @param eq_idx Index of relevant equilibrium object
         @result L[ncoils+1,ncoils+1]
         '''
         Lmat = numpy.zeros((self.ncoils+1,self.ncoils+1),dtype=numpy.float64)
@@ -1395,6 +1441,7 @@ class TokaMaker():
 
         @param psi Flux surface to trace \f$\hat{\psi}\f$
         @param nresample Number of points to resample along the traced surface (default: None, return all points)
+        @param eq_idx Index of relevant equilibrium object
         @result \f$r(\hat{\psi})\f$
         '''
         if len(self._tMaker_equil) == 0:
@@ -1408,6 +1455,7 @@ class TokaMaker():
         @param psi_pad End padding (axis and edge) for uniform sampling (ignored if `psi` is not None)
         @param npsi Number of points for uniform sampling (ignored if `psi` is not None)
         @param compute_geo Compute geometric values for LCFS
+        @param eq_idx Index of relevant equilibrium object
         @result \f$\hat{\psi}\f$, \f$q(\hat{\psi})\f$, \f${<R>,<1/R>,dV/dPsi}\f$, length of last surface,
         [r(R_min),r(R_max)], [r(z_min),r(z_max)]
         '''
@@ -1421,6 +1469,7 @@ class TokaMaker():
         @param psi Explicit sampling locations in \f$\hat{\psi}\f$
         @param psi_pad End padding (axis and edge) for uniform sampling (ignored if `psi` is not None)
         @param npsi Number of points for uniform sampling (ignored if `psi` is not None)
+        @param eq_idx Index of relevant equilibrium object
         @result \f$ f_c \f$, \f${<R>,<1/R>,<a>}\f$, \f$[<|B|>,<|B|^2>]\f$
         '''
         if len(self._tMaker_equil) == 0:
@@ -1430,6 +1479,7 @@ class TokaMaker():
     def get_globals(self,eq_idx=0):
         r'''! Get global plasma parameters
 
+        @param eq_idx Index of relevant equilibrium object
         @result Ip, [R_Ip, Z_Ip], \f$\int dV\f$, \f$\int P dV\f$, diamagnetic flux,
         enclosed toroidal flux
         '''
@@ -1440,6 +1490,7 @@ class TokaMaker():
     def calc_loopvoltage(self,eq_idx=0):
         r'''! Get plasma loop voltage
 
+        @param eq_idx Index of relevant equilibrium object
         @result Vloop [Volts]
         '''
         if len(self._tMaker_equil) == 0:
@@ -1452,6 +1503,7 @@ class TokaMaker():
         @param psi Explicit sampling locations in \f$\hat{\psi}\f$
         @param psi_pad End padding (axis and edge) for uniform sampling (ignored if `psi` is not None)
         @param npsi Number of points for uniform sampling (ignored if `psi` is not None)
+        @param eq_idx Index of relevant equilibrium object
         @result \f$\hat{\psi}\f$, \f$F(\hat{\psi})\f$, \f$F'(\hat{\psi})\f$,
         \f$P(\hat{\psi})\f$, \f$P'(\hat{\psi})\f$
         '''
@@ -1462,6 +1514,7 @@ class TokaMaker():
     def get_xpoints(self,eq_idx=0):
         '''! Get X-points
 
+        @param eq_idx Index of relevant equilibrium object
         @result X-points, is diverted?
         '''
         if len(self._tMaker_equil) == 0:
@@ -1472,6 +1525,7 @@ class TokaMaker():
         '''! Set coil currents
 
         @param currents Current in each coil [A]
+        @param eq_idx Index of relevant equilibrium object
         '''
         if currents is None:
             currents = {}
@@ -1573,6 +1627,7 @@ class TokaMaker():
 
         @param psi_vals \f$ \hat{\psi} \f$ values defining flux function [:]
         @param field_vals Flux function values at each \f$ \hat{\psi} \f$ value [:]
+        @param eq_idx Index of relevant equilibrium object
         @result \f$ \int f dA \f$
         '''
         if self._tMaker_equil is None:
@@ -1586,6 +1641,7 @@ class TokaMaker():
         @param fig Figure to add to
         @param ax Axis to add to
         @param equilibrium Equilibrium object (if `None`, current equilibrium is used)
+        @param eq_idx Index of relevant equilibrium object
         @param vacuum_color Color to shade vacuum region (`None` to disable)
         @param cond_color Color for conducting regions (`None` to disable)
         @param limiter_color Color for limiter contour (`None` to disable)
@@ -1806,6 +1862,7 @@ class TokaMaker():
         @param fig Figure to add to
         @param ax Axis to add to
         @param equilibrium Equilibrium object (if `None`, current equilibrium is used)
+        @param eq_idx Index of relevant equilibrium object
         @param psi Flux values to plot (otherwise `equilibrium.get_psi()` is called)
         @param normalized Retreive normalized flux, or assume normalized psi if passed as argument
         @param plasma_color Color for plasma contours
@@ -1893,6 +1950,7 @@ class TokaMaker():
         @param equilibrium Equilibrium object (if `None`, current equilibrium is used)
         @param isoflux_color Color of isoflux points (`None` to disable)
         @param saddle_color Color of saddle points (`None` to disable)
+        @param eq_idx Index of relevant equilibrium object
         '''
         # Get equilibrium object if not set
         if equilibrium is None:
@@ -1972,6 +2030,7 @@ class TokaMaker():
         @param psi Psi corresponding to field with conductor currents (eg. from time-dependent simulation)
         @param cell_centered Get currents at cell centers
         @param include_Vcoils Include voltage coils in the calculation?
+        @param eq_idx Index of relevant equilibrium object
         '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
@@ -2015,6 +2074,7 @@ class TokaMaker():
     def get_vfixed(self,eq_idx=0):
         '''! Get required vacuum flux values to balance fixed boundary equilibrium
 
+        @param eq_idx Index of relevant equilibrium object
         @result sampling points [:,2], flux values [:]
         '''
         if len(self._tMaker_equil) == 0:
@@ -2036,6 +2096,7 @@ class TokaMaker():
         @param limiter_file File containing limiter contour to use instead of TokaMaker limiter
         @param lcfs_pressure Plasma pressure on the LCFS (zero by default)
         @param cocos COCOS version. (Only 2 or 7 supported. `cocos=7` is the default.)
+        @param eq_idx Index of relevant equilibrium object
         '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
@@ -2051,6 +2112,7 @@ class TokaMaker():
         @param lcfs_pressure Plasma pressure on the LCFS (zero by default)
         @param pack_lcfs Pack toward LCFS with quadraturic sampling?
         @param single_precision Save single precision file? (default: double precision)
+        @param eq_idx Index of relevant equilibrium object
         '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
@@ -2060,6 +2122,7 @@ class TokaMaker():
         r'''! Save current equilibrium to MUG transfer format
 
         @param filename Filename to save equilibrium to
+        @param eq_idx Index of relevant equilibrium object
         '''
         if len(self._tMaker_equil) == 0:
             raise ValueError("Equilibrium list is empty")
@@ -2141,6 +2204,7 @@ class TokaMaker():
         @param include_bounds Include bounding flux terms for constant normalized profiles?
         @param pm Print solver statistics and raw eigenvalues?
         @param damping_scale Scale factor for damping term to artificially limit growth rate (negative to disable)?
+        @param eq_idx Index of relevant equilibrium object
         @result eigenvalues[neigs,2], eigenvectors[neigs,self.np]
         '''
         warn(
@@ -2170,6 +2234,7 @@ class TokaMaker():
         @param include_bounds Include bounding flux terms for constant normalized profiles?
         @param pm Print solver statistics and raw eigenvalues?
         @param damping_scale Scale factor for damping term to artificially limit growth rate (negative to disable)?
+        @param eq_idx Index of relevant equilibrium object
         @result \f$ \gamma \f$ [nmodes], eigenvectors [nmodes,self.np]
         '''
         if len(self._tMaker_equil) == 0:
@@ -2220,7 +2285,7 @@ class TokaMaker():
 
 class TokaMaker_equilibrium():
     '''! TokaMaker G-S equilibrium class'''
-    def __init__(self,TokaMaker_obj=None,source_eq=None,skip_targets=False,skip_constraints=False,eq_idx=0):
+    def __init__(self,TokaMaker_obj=None,source_eq=None,skip_targets=False,skip_constraints=False):
         '''! Initialize TokaMaker equilibrium object
 
         @param TokaMaker_obj TokaMaker object (See @ref OpenFUSIONToolkit.TokaMaker._core.TokaMaker "TokaMaker")
@@ -2686,7 +2751,7 @@ class TokaMaker_equilibrium():
             raise Exception(error_string.value)
         return self._tMaker.coil_vec2dict(currents), currents_reg
 
-    def get_globals(self,eq_idx=0):
+    def get_globals(self):
         r'''! Get global plasma parameters
 
         @result Ip, [R_Ip, Z_Ip], \f$\int dV\f$, \f$\int P dV\f$, diamagnetic flux,
@@ -2925,7 +2990,7 @@ class TokaMaker_equilibrium():
             field_dim = 2
         return TokaMaker_field_interpolator(self._equil_ptr,int_obj,imode,field_dim)
 
-    def get_stats(self,lcfs_pad=None,axis_pad=0.02,li_normalization='std',geom_type='max',beta_Ip=None,eq_idx=0):
+    def get_stats(self,lcfs_pad=None,axis_pad=0.02,li_normalization='std',geom_type='max',beta_Ip=None):
         r'''! Get information (Ip, q, kappa, etc.) about current G-S equilbirium
 
         See eq. 1 for `li_normalization='std'` and eq 2. for `li_normalization='iter'`
@@ -2937,7 +3002,7 @@ class TokaMaker_equilibrium():
         @param beta_Ip Override \f$ I_p \f$ used for beta calculations
         @result Dictionary of equilibrium parameters
         '''
-        Ip,centroid,vol,pvol,dflux,tflux,Bp_vol = self.get_globals(eq_idx=eq_idx)
+        Ip,centroid,vol,pvol,dflux,tflux,Bp_vol = self.get_globals()
         if beta_Ip is not None:
             Ip = beta_Ip
         p_psi = numpy.linspace(0.0,1.0,100)
